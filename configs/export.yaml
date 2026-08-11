@@ -1,0 +1,28 @@
+# configs/export.yaml
+# Configuración para exportar a ONNX/TensorRT y benchmark
+# Uso: python scripts/export_and_benchmark.py
+
+defaults:
+  - _self_
+
+# Modelo a exportar
+model: yolov11n.pt
+
+# Tamaño de imagen para exportar
+img_size: 640
+
+# Precisión
+half_precision: true
+
+# Device para benchmark
+device: cuda
+
+# Output
+output_dir: runs/export
+
+# Exportar
+export_onnx: true
+export_trt: false  # true si tienes TensorRT instalado
+
+# Benchmark
+benchmark_iters: 100

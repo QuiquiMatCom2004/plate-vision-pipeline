@@ -1,0 +1,26 @@
+# configs/train.yaml
+# Configuración para entrenamiento local de YOLOv11
+# Uso: python scripts/train_yolo.py
+
+defaults:
+  - _self_
+
+# Experiment
+experiment_name: yolo_finetune_local
+run_name: finetune_local_${now:%Y%m%d_%H%M%S}
+
+# Modelo base
+model: yolov11n.pt
+
+# Dataset (ruta al archivo .yaml de YOLO)
+data: data/dataset.yaml
+
+# Hiperparámetros
+epochs: 50
+imgsz: 640
+batch_size: 16
+patience: 10
+device: cuda
+
+# Output
+output_dir: runs/train
