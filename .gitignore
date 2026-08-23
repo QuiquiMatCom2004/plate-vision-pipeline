@@ -42,6 +42,7 @@ mlartifacts/
 .vscode/
 .idea/
 .cs-scientist/
+.codegraph/
 *.swp
 *.swo
 
