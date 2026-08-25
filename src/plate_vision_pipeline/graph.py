@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, END
 from langgraph.graph.state import CompiledStateGraph
 
-from cv_agent_pipeline.state import PipelineState
+from plate_vision_pipeline.state import PipelineState
 def route_after_detect(state:dict) -> list[str]:
     '''Metodo que dirige a los nodos segment y describe en paralelo. O si falla la deteccion envia al final'''
     if 'detections' not in state:

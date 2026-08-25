@@ -1,8 +1,8 @@
 import numpy as np
 from langgraph.graph import END
 
-from cv_agent_pipeline.graph import build_graph, route_after_detect, RouteAfterMeasure
-from cv_agent_pipeline.state import create_initial_pipelinestate
+from plate_vision_pipeline.graph import build_graph, route_after_detect, RouteAfterMeasure
+from plate_vision_pipeline.state import create_initial_pipelinestate
 
 
 # ---------------------------------------------------------------------------

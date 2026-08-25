@@ -1,4 +1,4 @@
-# Study Guide — CV Agent Pipeline
+# Study Guide — Plate Vision Pipeline
 
 Qué estudiar de cada doc, en qué fase del proyecto se usa, y por qué funciona así.
 

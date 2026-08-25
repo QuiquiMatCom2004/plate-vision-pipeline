@@ -15,11 +15,11 @@ from fastapi import Depends, FastAPI, HTTPException, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
-from cv_agent_pipeline.api.deps import build_pipeline, decode_image, get_graph
-from cv_agent_pipeline.config import Settings
-from cv_agent_pipeline.graph import RouteAfterMeasure
-from cv_agent_pipeline.models import DetectModel, SegmentModel, DescribeModel, MeasureModel
-from cv_agent_pipeline.state import PipelineState
+from plate_vision_pipeline.api.deps import build_pipeline, decode_image, get_graph
+from plate_vision_pipeline.config import Settings
+from plate_vision_pipeline.graph import RouteAfterMeasure
+from plate_vision_pipeline.models import DetectModel, SegmentModel, DescribeModel, MeasureModel
+from plate_vision_pipeline.state import PipelineState
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class HealthResponse(BaseModel):
 
 def create_app() -> FastAPI:
     """Crea la app FastAPI con lifespan que carga modelos una vez."""
-    app = FastAPI(title="CV Agent Pipeline", version="0.1.0")
+    app = FastAPI(title="Plate Vision Pipeline", version="0.1.0")
 
     @app.on_event("startup")
     async def startup():

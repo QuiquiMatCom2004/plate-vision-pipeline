@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-import cv_agent_pipeline.models as models_module
-from cv_agent_pipeline.models import DescribeModel, DetectModel, MeasureModel, SegmentModel
+import plate_vision_pipeline.models as models_module
+from plate_vision_pipeline.models import DescribeModel, DetectModel, MeasureModel, SegmentModel
 
 
 class FakeBox:

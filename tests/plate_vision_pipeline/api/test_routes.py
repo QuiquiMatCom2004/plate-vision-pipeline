@@ -13,9 +13,9 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from cv_agent_pipeline.api.main import app
-from cv_agent_pipeline.api.deps import get_graph
-from cv_agent_pipeline.state import PipelineState
+from plate_vision_pipeline.api.main import app
+from plate_vision_pipeline.api.deps import get_graph
+from plate_vision_pipeline.state import PipelineState
 
 
 @pytest.fixture
@@ -99,7 +99,7 @@ def test_analyze_endpoint_success(client, monkeypatch):
 
         # Además, verificamos que el modelo Pydantic lo valida (si faltara
         # algún campo o tipo incorrecto, el test fallaría aquí).
-        from cv_agent_pipeline.api.main import PlateAnalysis
+        from plate_vision_pipeline.api.main import PlateAnalysis
 
         PlateAnalysis(**data)  # no debe lanzar
 

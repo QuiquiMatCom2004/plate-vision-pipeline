@@ -16,15 +16,15 @@ import numpy as np
 from fastapi import Depends, HTTPException, Request
 from PIL import Image
 
-from cv_agent_pipeline.config import Settings
-from cv_agent_pipeline.graph import RouteAfterMeasure, build_graph
-from cv_agent_pipeline.models import (
+from plate_vision_pipeline.config import Settings
+from plate_vision_pipeline.graph import RouteAfterMeasure, build_graph
+from plate_vision_pipeline.models import (
     DescribeModel,
     DetectModel,
     MeasureModel,
     SegmentModel,
 )
-from cv_agent_pipeline.state import PipelineState, create_initial_pipelinestate
+from plate_vision_pipeline.state import PipelineState, create_initial_pipelinestate
 
 logger = logging.getLogger(__name__)
 

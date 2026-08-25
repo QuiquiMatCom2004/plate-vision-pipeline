@@ -1,4 +1,4 @@
-# Roadmap — CV Agent Pipeline
+# Roadmap — Plate Vision Pipeline
 
 Mapa mental de trabajo: qué aprender, cómo trabajar, y en qué orden construir el proyecto.
 Este documento responde al **por qué** y al **qué**, no al **cómo implementar**.

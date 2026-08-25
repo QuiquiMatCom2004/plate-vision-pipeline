@@ -7,7 +7,7 @@ from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from ultralytics import YOLO
 
-from cv_agent_pipeline.state import Detection
+from plate_vision_pipeline.state import Detection
 
 logger = logging.getLogger(__name__)
 

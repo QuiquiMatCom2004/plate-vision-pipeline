@@ -1,4 +1,4 @@
-from cv_agent_pipeline.state import PipelineState, Segmentation
+from plate_vision_pipeline.state import PipelineState, Segmentation
 import numpy as np
 
 def latency(node_name):

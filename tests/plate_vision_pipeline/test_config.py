@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 from pydantic_settings import SettingsError
 
-from cv_agent_pipeline.config import Settings
+from plate_vision_pipeline.config import Settings
 
 
 # yolo_weights_path, sam2_checkpoint_path y vlm_name no tienen default: hay

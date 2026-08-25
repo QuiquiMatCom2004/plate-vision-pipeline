@@ -1,4 +1,4 @@
-# CV Agent Pipeline
+# Plate Vision Pipeline
 
 **Agente que recibe imagen/video → detecta → segmenta → describe → estructura → devuelve JSON**
 
@@ -93,7 +93,7 @@ Salida JSON:
 ## Archivos a crear
 
 ```
-CV Agent Pipeline/
+Plate Vision Pipeline/
 ├── PROJECT.md                      ← este archivo
 ├── docs/
 │   ├── ARCHITECTURE.md             ← Mermaid diagrams del pipeline

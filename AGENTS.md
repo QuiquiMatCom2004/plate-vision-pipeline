@@ -1,4 +1,4 @@
-# AGENTS.md — CV Agent Pipeline
+# AGENTS.md — Plate Vision Pipeline
 
 ## Qué es este proyecto
 

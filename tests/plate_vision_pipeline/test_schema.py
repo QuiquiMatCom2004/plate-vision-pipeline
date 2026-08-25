@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from cv_agent_pipeline.schema import Diet, FoodItem, PlateAnalysis
+from plate_vision_pipeline.schema import Diet, FoodItem, PlateAnalysis
 
 
 def test_plate_analysis_valid(plate_kwargs):

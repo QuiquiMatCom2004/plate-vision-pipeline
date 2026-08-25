@@ -1,4 +1,4 @@
-from cv_agent_pipeline.state import merge_latency
+from plate_vision_pipeline.state import merge_latency
 
 
 def test_merge_latency_new_value_overrides_old():

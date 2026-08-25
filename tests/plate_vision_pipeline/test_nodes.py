@@ -1,6 +1,6 @@
 import numpy as np
 
-from cv_agent_pipeline.nodes import DescribeNode, DetectNode, MeasureNode, SegmentNode
+from plate_vision_pipeline.nodes import DescribeNode, DetectNode, MeasureNode, SegmentNode
 
 
 class FakeDetector:

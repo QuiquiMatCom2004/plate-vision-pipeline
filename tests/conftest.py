@@ -1,6 +1,6 @@
 import pytest
 
-from cv_agent_pipeline.schema import Diet, FoodItem, Macros
+from plate_vision_pipeline.schema import Diet, FoodItem, Macros
 
 @pytest.fixture
 def valid_macros():
