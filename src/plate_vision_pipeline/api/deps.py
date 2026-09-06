@@ -102,7 +102,10 @@ def build_pipeline(settings: Settings) -> PipelineState:
     )
 
     segment_model = SegmentModel(
-        config_file="sam2_hiera_b+.yaml",
+        # "sam2_hiera_t.yaml" (Hiera-Tiny) — debe coincidir con la variante
+        # real del checkpoint en sam2_checkpoint_path (ver embed_dim del
+        # state_dict si se cambia el checkpoint: t=96, s/b+=112/128).
+        config_file="sam2_hiera_t.yaml",
         checkpoint_path=settings.sam2_checkpoint_path,
         device=settings.device,
     )
