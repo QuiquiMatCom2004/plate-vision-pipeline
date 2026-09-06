@@ -220,9 +220,10 @@ class MeasureModel:
     construido se inyecta (DI) — así el modelo es testeable sin tocar red.
     """
 
-    # Confirmado contra GET https://openrouter.ai/api/v1/models (catálogo de
-    # gratuitos cambia seguido — re-verificar si empieza a dar 404).
-    DEFAULT_MODEL_NAME = "google/gemma-4-31b-it:free"
+    # Confirmado end-to-end contra la API real de OpenRouter (catálogo de
+    # gratuitos cambia seguido — re-verificar si empieza a dar 404/429
+    # persistente contra GET https://openrouter.ai/api/v1/models).
+    DEFAULT_MODEL_NAME = "minimax/minimax-m3:free"
     DEFAULT_MAX_TOKENS = 1024
 
     def __init__(
