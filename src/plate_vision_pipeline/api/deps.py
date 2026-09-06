@@ -25,6 +25,7 @@ from plate_vision_pipeline.models import (
     MeasureModel,
     SegmentModel,
 )
+from plate_vision_pipeline.nodes import DescribeNode, DetectNode, MeasureNode, SegmentNode
 from plate_vision_pipeline.state import PipelineState, create_initial_pipelinestate
 
 logger = logging.getLogger(__name__)
@@ -126,9 +127,9 @@ def build_pipeline(settings: Settings) -> PipelineState:
     route = RouteAfterMeasure(max_attempts=settings.max_measure_attempts)
 
     return build_graph(
-        detect_node=detect_model,
-        segment_node=segment_model,
-        describe_node=describe_model,
-        measure_node=measure_model,
+        detect_node=DetectNode(detect_model),
+        segment_node=SegmentNode(segment_model),
+        describe_node=DescribeNode(describe_model),
+        measure_node=MeasureNode(measure_model),
         route_after_measure=route,
     )
