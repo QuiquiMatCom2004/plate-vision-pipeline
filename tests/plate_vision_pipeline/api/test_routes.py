@@ -12,6 +12,7 @@ import json
 from typing import Any
 
 import pytest
+from fastapi import Request
 from fastapi.testclient import TestClient
 from PIL import Image
 
@@ -88,7 +89,7 @@ def test_analyze_endpoint_success(client, monkeypatch):
         def invoke(self, state: PipelineState) -> PipelineState:
             return fake_state
 
-    def override_get_graph(_request):
+    def override_get_graph(_request: Request):
         return FakeGraph()
 
     app.dependency_overrides[get_graph] = override_get_graph
@@ -132,7 +133,7 @@ def test_analyze_endpoint_invalid_image(client):
         def invoke(self, state):
             raise AssertionError("no debería invocarse el grafo con una imagen inválida")
 
-    def override_get_graph(_request):
+    def override_get_graph(_request: Request):
         return UnusedGraph()
 
     app.dependency_overrides[get_graph] = override_get_graph
@@ -153,7 +154,7 @@ def test_analyze_endpoint_pipeline_fails(client, monkeypatch):
         def invoke(self, state: PipelineState):
             raise RuntimeError("fallo interno del grafo")
 
-    def override_get_graph(_request):
+    def override_get_graph(_request: Request):
         return FailingGraph()
 
     app.dependency_overrides[get_graph] = override_get_graph
@@ -184,7 +185,7 @@ def test_analyze_endpoint_no_structure(client, monkeypatch):
         def invoke(self, state: PipelineState) -> PipelineState:
             return fake_state_no_struct
 
-    def override_get_graph(_request):
+    def override_get_graph(_request: Request):
         return FakeGraph()
 
     app.dependency_overrides[get_graph] = override_get_graph
