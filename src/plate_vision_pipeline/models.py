@@ -3,10 +3,10 @@ import io
 import logging
 from typing import Any, Protocol
 
-import anthropic
 import numpy as np
+import openai
 import torch
-from instructor import from_anthropic
+from instructor import Mode, from_openai
 from PIL import Image
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
@@ -17,6 +17,10 @@ from plate_vision_pipeline.schema import PlateAnalysis
 from plate_vision_pipeline.state import Detection
 
 logger = logging.getLogger(__name__)
+
+# OpenRouter: gateway OpenAI-compatible — un solo client/API key para muchos
+# proveedores/modelos (incluye modelos de visión gratuitos).
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 
 
 def _build_describe_prompt(detections: list[Detection]) -> str:
@@ -69,7 +73,8 @@ class LocalVLMBackend:
 
 
 class ApiVLMBackend:
-    """Backend Claude API — la imagen viaja como base64 dentro de un mensaje JSON."""
+    """Backend vía OpenRouter (API OpenAI-compatible) — la imagen viaja como
+    data-URI base64 dentro de un `image_url`, no como bloque nativo de Anthropic."""
 
     def __init__(self, client, model_name: str) -> None:
         self.client = client
@@ -80,7 +85,7 @@ class ApiVLMBackend:
         buffer = io.BytesIO()
         Image.fromarray(image).save(buffer, format="PNG")
         encoded_image = base64.b64encode(buffer.getvalue()).decode("utf-8")
-        message = self.client.messages.create(
+        response = self.client.chat.completions.create(
             model=self.model_name,
             max_tokens=256,
             messages=[
@@ -88,19 +93,15 @@ class ApiVLMBackend:
                     "role": "user",
                     "content": [
                         {
-                            "type": "image",
-                            "source": {
-                                "type": "base64",
-                                "media_type": "image/png",
-                                "data": encoded_image,
-                            },
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/png;base64,{encoded_image}"},
                         },
                         {"type": "text", "text": prompt},
                     ],
                 }
             ],
         )
-        return message.content[0].text
+        return response.choices[0].message.content
 
 
 class DetectModel:
@@ -205,21 +206,23 @@ class DescribeModel:
         return LocalVLMBackend(model=model, processor=processor)
 
     def _load_api_candidate(self, name: str) -> ApiVLMBackend:
-        client = anthropic.Anthropic(api_key=self.apikey)
+        client = openai.OpenAI(base_url=OPENROUTER_BASE_URL, api_key=self.apikey)
         return ApiVLMBackend(client=client, model_name=name)
 
 
 class MeasureModel:
     """Modelo de medición con structured output via `instructor`.
 
-    Recibe el client Anthropic crudo y lo envuelve con
-    `instructor.from_anthropic` dentro del __init__ (el `patch()` genérico
-    de instructor asume forma OpenAI — `client.chat.completions.create` —
-    y no sirve para Anthropic). El client ya construido se inyecta (DI) —
-    así el modelo es testeable sin tocar red.
+    Recibe el client OpenAI-compatible crudo (OpenRouter) y lo envuelve con
+    `instructor.from_openai` dentro del __init__. Se usa `Mode.JSON` en vez
+    de `Mode.TOOLS` porque no todos los modelos gratuitos del catálogo de
+    OpenRouter soportan tool-calling nativo de forma confiable. El client ya
+    construido se inyecta (DI) — así el modelo es testeable sin tocar red.
     """
 
-    DEFAULT_MODEL_NAME = "claude-3-5-sonnet-20241022"
+    # Verificar el slug exacto y vigente en https://openrouter.ai/models
+    # (catálogo de gratuitos cambia seguido) antes de confiar en el default.
+    DEFAULT_MODEL_NAME = "meta-llama/llama-3.2-11b-vision-instruct:free"
     DEFAULT_MAX_TOKENS = 1024
 
     def __init__(
@@ -228,12 +231,12 @@ class MeasureModel:
         model_name: str = DEFAULT_MODEL_NAME,
         max_tokens: int = DEFAULT_MAX_TOKENS,
     ) -> None:
-        self.client = from_anthropic(raw_client)
+        self.client = from_openai(raw_client, mode=Mode.JSON)
         self.model_name = model_name
         self.max_tokens = max_tokens
 
     def predict(self, description: str) -> Any:
-        return self.client.messages.create(
+        return self.client.chat.completions.create(
             model=self.model_name,
             max_tokens=self.max_tokens,
             response_model=PlateAnalysis,

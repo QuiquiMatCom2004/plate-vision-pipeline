@@ -12,14 +12,15 @@ import logging
 from functools import lru_cache
 from typing import Annotated
 
-import anthropic
 import numpy as np
+import openai
 from fastapi import Depends, HTTPException, Request
 from PIL import Image
 
 from plate_vision_pipeline.config import Settings
 from plate_vision_pipeline.graph import RouteAfterMeasure, build_graph
 from plate_vision_pipeline.models import (
+    OPENROUTER_BASE_URL,
     DescribeModel,
     DetectModel,
     MeasureModel,
@@ -119,7 +120,7 @@ def build_pipeline(settings: Settings) -> PipelineState:
     )
 
     measure_model = MeasureModel(
-        raw_client=anthropic.Anthropic(api_key=settings.apikey),
+        raw_client=openai.OpenAI(base_url=OPENROUTER_BASE_URL, api_key=settings.apikey),
         model_name=settings.measure_model_name,
         max_tokens=settings.measure_max_tokens,
     )

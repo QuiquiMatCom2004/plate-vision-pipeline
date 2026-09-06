@@ -353,20 +353,19 @@ def test_segment_predict_empty_boxes_returns_empty_list_without_set_image(patch_
 # ---------------------------------------------------------------------------
 # MeasureModel
 #
-# Contrato confirmado: recibe el client Anthropic crudo y lo envuelve con
-# `instructor.from_anthropic` dentro del __init__. El `patch()` genérico de
-# instructor asume forma OpenAI (`client.chat.completions.create`) y falla
-# con `AttributeError: 'Anthropic' object has no attribute 'chat'` — se
-# confirmó corriendo el pipeline real contra la API de Anthropic.
+# Contrato confirmado: recibe el client OpenAI-compatible crudo (OpenRouter)
+# y lo envuelve con `instructor.from_openai(client, mode=Mode.JSON)` dentro
+# del __init__ — se usó Anthropic primero, pero las API keys disponibles
+# (NVIDIA/OpenRouter) hablan el formato OpenAI, no el de Anthropic.
 #
-# predict(description) llama a `self.client.messages.create(model=...,
+# predict(description) llama a `self.client.chat.completions.create(model=...,
 # max_tokens=..., response_model=PlateAnalysis, messages=[...])` — estilo
-# Anthropic nativo, ya que `from_anthropic` expone esa misma interfaz.
+# OpenAI nativo, ya que `from_openai` expone esa misma interfaz.
 # ---------------------------------------------------------------------------
 
 
 class FakeInstructorClient:
-    """Marca que `from_anthropic()` fue aplicado, sin ser el client crudo original."""
+    """Marca que `from_openai()` fue aplicado, sin ser el client crudo original."""
 
     def __init__(self, raw_client):
         self.raw_client = raw_client
@@ -376,11 +375,11 @@ class FakeInstructorClient:
 def patch_instructor(monkeypatch):
     calls = []
 
-    def fake_from_anthropic(client):
+    def fake_from_openai(client, mode=None):
         calls.append(client)
         return FakeInstructorClient(client)
 
-    monkeypatch.setattr(models_module, "from_anthropic", fake_from_anthropic)
+    monkeypatch.setattr(models_module, "from_openai", fake_from_openai)
     return calls
 
 
