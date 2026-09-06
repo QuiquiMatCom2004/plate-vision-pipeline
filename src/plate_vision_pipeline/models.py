@@ -6,7 +6,7 @@ from typing import Any, Protocol
 import anthropic
 import numpy as np
 import torch
-from instructor import patch
+from instructor import from_anthropic
 from PIL import Image
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
@@ -212,9 +212,11 @@ class DescribeModel:
 class MeasureModel:
     """Modelo de medición con structured output via `instructor`.
 
-    Recibe el client crudo (Anthropic/OpenAI/etc.) y lo patchea con
-    `instructor.patch` dentro del __init__. El client ya construido se
-    inyecta (DI) — así el modelo es testeable sin tocar red.
+    Recibe el client Anthropic crudo y lo envuelve con
+    `instructor.from_anthropic` dentro del __init__ (el `patch()` genérico
+    de instructor asume forma OpenAI — `client.chat.completions.create` —
+    y no sirve para Anthropic). El client ya construido se inyecta (DI) —
+    así el modelo es testeable sin tocar red.
     """
 
     DEFAULT_MODEL_NAME = "claude-3-5-sonnet-20241022"
@@ -226,7 +228,7 @@ class MeasureModel:
         model_name: str = DEFAULT_MODEL_NAME,
         max_tokens: int = DEFAULT_MAX_TOKENS,
     ) -> None:
-        self.client = patch(raw_client)
+        self.client = from_anthropic(raw_client)
         self.model_name = model_name
         self.max_tokens = max_tokens
 

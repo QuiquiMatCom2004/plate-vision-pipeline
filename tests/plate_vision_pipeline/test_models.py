@@ -353,18 +353,20 @@ def test_segment_predict_empty_boxes_returns_empty_list_without_set_image(patch_
 # ---------------------------------------------------------------------------
 # MeasureModel
 #
-# Contrato confirmado: recibe el client crudo y lo patchea con `instructor`
-# dentro del __init__. Se asume `from instructor import patch`, en la misma
-# línea que el `from ultralytics import YOLO` ya usado en models.py — avisar
-# si en cambio se prefiere `import instructor; instructor.patch(...)`.
+# Contrato confirmado: recibe el client Anthropic crudo y lo envuelve con
+# `instructor.from_anthropic` dentro del __init__. El `patch()` genérico de
+# instructor asume forma OpenAI (`client.chat.completions.create`) y falla
+# con `AttributeError: 'Anthropic' object has no attribute 'chat'` — se
+# confirmó corriendo el pipeline real contra la API de Anthropic.
 #
-# predict(description) -> dict todavía no se testea: el estilo de llamada al
-# client patcheado (OpenAI-style vs Anthropic-style) no está decidido.
+# predict(description) llama a `self.client.messages.create(model=...,
+# max_tokens=..., response_model=PlateAnalysis, messages=[...])` — estilo
+# Anthropic nativo, ya que `from_anthropic` expone esa misma interfaz.
 # ---------------------------------------------------------------------------
 
 
-class FakePatchedClient:
-    """Marca que `patch()` fue aplicado, sin ser el client crudo original."""
+class FakeInstructorClient:
+    """Marca que `from_anthropic()` fue aplicado, sin ser el client crudo original."""
 
     def __init__(self, raw_client):
         self.raw_client = raw_client
@@ -374,21 +376,21 @@ class FakePatchedClient:
 def patch_instructor(monkeypatch):
     calls = []
 
-    def fake_patch(client):
+    def fake_from_anthropic(client):
         calls.append(client)
-        return FakePatchedClient(client)
+        return FakeInstructorClient(client)
 
-    monkeypatch.setattr(models_module, "patch", fake_patch)
+    monkeypatch.setattr(models_module, "from_anthropic", fake_from_anthropic)
     return calls
 
 
-def test_measure_model_patches_raw_client_with_instructor(patch_instructor):
+def test_measure_model_wraps_raw_client_with_instructor(patch_instructor):
     raw_client = object()
 
     model = MeasureModel(raw_client)
 
     assert patch_instructor == [raw_client]
-    assert isinstance(model.client, FakePatchedClient)
+    assert isinstance(model.client, FakeInstructorClient)
     assert model.client.raw_client is raw_client
 
 
