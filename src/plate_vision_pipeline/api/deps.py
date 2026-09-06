@@ -12,6 +12,7 @@ import logging
 from functools import lru_cache
 from typing import Annotated
 
+import anthropic
 import numpy as np
 from fastapi import Depends, HTTPException, Request
 from PIL import Image
@@ -114,7 +115,9 @@ def build_pipeline(settings: Settings) -> PipelineState:
     )
 
     measure_model = MeasureModel(
-        raw_client=None,  # el client crudo se inyecta en el nodo measure
+        raw_client=anthropic.Anthropic(api_key=settings.apikey),
+        model_name=settings.measure_model_name,
+        max_tokens=settings.measure_max_tokens,
     )
 
     route = RouteAfterMeasure(max_attempts=settings.max_measure_attempts)

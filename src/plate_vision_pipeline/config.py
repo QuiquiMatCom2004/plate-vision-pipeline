@@ -12,3 +12,5 @@ class Settings(BaseSettings):
     sam2_checkpoint_path: str
     min_yolo_conf: float = 0.3
     vlm_name: dict[Literal['local','api'],list[str]]
+    measure_model_name: str = 'claude-3-5-sonnet-20241022'
+    measure_max_tokens: int = 1024

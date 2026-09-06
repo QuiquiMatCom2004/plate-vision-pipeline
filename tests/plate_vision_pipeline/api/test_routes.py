@@ -7,11 +7,13 @@ corren en CPU pura y validan únicamente la capa de FastAPI.
 
 from __future__ import annotations
 
+import io
 import json
 from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from PIL import Image
 
 from plate_vision_pipeline.api.main import app
 from plate_vision_pipeline.api.deps import get_graph
@@ -21,6 +23,18 @@ from plate_vision_pipeline.state import PipelineState
 @pytest.fixture
 def client():
     return TestClient(app)
+
+
+def _valid_png_bytes() -> bytes:
+    """PNG real de 1x1 px — decode_image() lo tiene que poder abrir de verdad.
+
+    Con el 422 de UnidentifiedImageError ya implementado en el endpoint,
+    cualquier test que espere pasar la decodificación necesita bytes de
+    imagen genuinos, no un placeholder como b"fake".
+    """
+    buffer = io.BytesIO()
+    Image.new("RGB", (1, 1), color=(255, 0, 0)).save(buffer, format="PNG")
+    return buffer.getvalue()
 
 
 def test_health_endpoint(client):
@@ -80,8 +94,8 @@ def test_analyze_endpoint_success(client, monkeypatch):
     app.dependency_overrides[get_graph] = override_get_graph
 
     try:
-        # 3. Llamamos al endpoint con un archivo PNG falso (cualquier bytes sirve)
-        files = {"image": ("test.png", b"fake-image-bytes", "image/png")}
+        # 3. Llamamos al endpoint con un PNG real (decode_image debe poder abrirlo)
+        files = {"image": ("test.png", _valid_png_bytes(), "image/png")}
         response = client.post("/analyze", files=files)
 
         # 4. Validaciones
@@ -110,11 +124,27 @@ def test_analyze_endpoint_success(client, monkeypatch):
 
 def test_analyze_endpoint_invalid_image(client):
     """POST /analyze con archivo no imagen debe devolver 422 (Unprocessable Entity)."""
-    # Enviamos un archivo que no es imagen (texto plano)
-    files = {"image": ("test.txt", b"not an image", "text/plain")}
-    response = client.post("/analyze", files=files)
-    # FastAPI + PIL lanzará HTTP 422 al intentar abrir el archivo como imagen
-    assert response.status_code == 422
+
+    # No debería llegar a usar el grafo, pero lo overrideamos igual: sin esto,
+    # la dependencia real get_graph corta con 503 antes de validar la imagen
+    # (el client fixture no dispara el lifespan real, a propósito).
+    class UnusedGraph:
+        def invoke(self, state):
+            raise AssertionError("no debería invocarse el grafo con una imagen inválida")
+
+    def override_get_graph(_request):
+        return UnusedGraph()
+
+    app.dependency_overrides[get_graph] = override_get_graph
+
+    try:
+        # Enviamos un archivo que no es imagen (texto plano)
+        files = {"image": ("test.txt", b"not an image", "text/plain")}
+        response = client.post("/analyze", files=files)
+        # El endpoint debe capturar el fallo de decodificación y devolver 422
+        assert response.status_code == 422
+    finally:
+        app.dependency_overrides.clear()
 
 
 def test_analyze_endpoint_pipeline_fails(client, monkeypatch):
@@ -129,7 +159,7 @@ def test_analyze_endpoint_pipeline_fails(client, monkeypatch):
     app.dependency_overrides[get_graph] = override_get_graph
 
     try:
-        files = {"image": ("test.png", b"fake", "image/png")}
+        files = {"image": ("test.png", _valid_png_bytes(), "image/png")}
         response = client.post("/analyze", files=files)
         assert response.status_code == 500
         data = response.json()
@@ -160,7 +190,7 @@ def test_analyze_endpoint_no_structure(client, monkeypatch):
     app.dependency_overrides[get_graph] = override_get_graph
 
     try:
-        files = {"image": ("test.png", b"fake", "image/png")}
+        files = {"image": ("test.png", _valid_png_bytes(), "image/png")}
         response = client.post("/analyze", files=files)
         assert response.status_code == 500
         data = response.json()

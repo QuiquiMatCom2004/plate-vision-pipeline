@@ -28,6 +28,7 @@ bitsandbytes>=0.45.0          # 4-bit quantization — FALTANTE
 
 # ── Structured output ─────────────────────────────────────────────────────────
 instructor>=1.7.0             # FALTANTE
+anthropic>=0.40.0              # cliente Claude — describe (modo api) + measure
 pydantic==2.11.7
 pydantic-settings==2.14.2
 

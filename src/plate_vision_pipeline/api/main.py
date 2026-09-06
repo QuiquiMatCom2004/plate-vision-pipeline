@@ -13,13 +13,14 @@ from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile
 from fastapi.responses import JSONResponse, StreamingResponse
+from PIL import UnidentifiedImageError
 from pydantic import BaseModel
 
 from plate_vision_pipeline.api.deps import build_pipeline, decode_image, get_graph
 from plate_vision_pipeline.config import Settings
 from plate_vision_pipeline.graph import RouteAfterMeasure
 from plate_vision_pipeline.models import DetectModel, SegmentModel, DescribeModel, MeasureModel
-from plate_vision_pipeline.state import PipelineState
+from plate_vision_pipeline.state import PipelineState, create_initial_pipelinestate
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,7 @@ def create_app() -> FastAPI:
 
     @app.post("/analyze", response_model=PlateAnalysis)
     async def analyze(
-        file: UploadFile,
+        image: UploadFile,
         graph: PipelineState = Depends(get_graph),
     ):
         """Analiza una imagen: detecta, segmenta, describe, mide.
@@ -78,13 +79,19 @@ def create_app() -> FastAPI:
         HTTP 500 con error en `errors`.
         """
         # 1. Decodificar la imagen
-        image_np = decode_image(file.file.read())
+        try:
+            image_np = decode_image(image.file.read())
+        except UnidentifiedImageError:
+            raise HTTPException(
+                status_code=422,
+                detail="Imagen no reconocida. Formatos válidos: PNG, JPG, JPEG.",
+            )
 
         # 2. Construir el estado inicial (helper del endpoint)
         state = create_initial_pipelinestate(image_np)
 
-        # 3. Ejecutar el grafo
-        graph = app.state.graph
+        # 3. Ejecutar el grafo (el inyectado por Depends(get_graph), no app.state directo —
+        #    así los tests pueden overridear get_graph sin tocar app.state)
         try:
             result = graph.invoke(state)
         except Exception as e:
