@@ -12,5 +12,5 @@ class Settings(BaseSettings):
     sam2_checkpoint_path: str
     min_yolo_conf: float = 0.3
     vlm_name: dict[Literal['local','api'],list[str]]
-    measure_model_name: str = 'meta-llama/llama-3.2-11b-vision-instruct:free'
+    measure_model_name: str = 'google/gemma-4-31b-it:free'
     measure_max_tokens: int = 1024

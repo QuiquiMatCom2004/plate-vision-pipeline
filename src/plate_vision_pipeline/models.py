@@ -220,9 +220,9 @@ class MeasureModel:
     construido se inyecta (DI) — así el modelo es testeable sin tocar red.
     """
 
-    # Verificar el slug exacto y vigente en https://openrouter.ai/models
-    # (catálogo de gratuitos cambia seguido) antes de confiar en el default.
-    DEFAULT_MODEL_NAME = "meta-llama/llama-3.2-11b-vision-instruct:free"
+    # Confirmado contra GET https://openrouter.ai/api/v1/models (catálogo de
+    # gratuitos cambia seguido — re-verificar si empieza a dar 404).
+    DEFAULT_MODEL_NAME = "google/gemma-4-31b-it:free"
     DEFAULT_MAX_TOKENS = 1024
 
     def __init__(
