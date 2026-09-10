@@ -101,7 +101,13 @@ class ApiVLMBackend:
                 }
             ],
         )
-        return response.choices[0].message.content
+        content = response.choices[0].message.content
+        if not content:
+            # Algunos proveedores devuelven 200 con content=None/"" en vez de
+            # un error — sin esto, DescribeNode lo trataría como éxito y
+            # propagaría description=None/"" hasta measure.
+            raise ValueError(f"'{self.model_name}' devolvió una respuesta vacía")
+        return content
 
 
 class DetectModel:
@@ -223,7 +229,8 @@ class MeasureModel:
     # Confirmado end-to-end contra la API real de OpenRouter (catálogo de
     # gratuitos cambia seguido — re-verificar si empieza a dar 404/429
     # persistente contra GET https://openrouter.ai/api/v1/models).
-    DEFAULT_MODEL_NAME = "minimax/minimax-m3:free"
+    # minimax/minimax-m3:free (usado antes) pasó a ser solo de pago.
+    DEFAULT_MODEL_NAME = "nex-agi/nex-n2.5-mini:free"
     DEFAULT_MAX_TOKENS = 1024
 
     def __init__(

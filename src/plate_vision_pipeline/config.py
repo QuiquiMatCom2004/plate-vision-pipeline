@@ -12,5 +12,5 @@ class Settings(BaseSettings):
     sam2_checkpoint_path: str
     min_yolo_conf: float = 0.3
     vlm_name: dict[Literal['local','api'],list[str]]
-    measure_model_name: str = 'minimax/minimax-m3:free'
+    measure_model_name: str = 'nex-agi/nex-n2.5-mini:free'
     measure_max_tokens: int = 1024

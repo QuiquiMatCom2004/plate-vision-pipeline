@@ -34,8 +34,13 @@ def analyze(image: np.ndarray):
 
     description = result.get("description", "")
     structure = result.get("structure", {})
+    # errors llega poblado aunque el pipeline "tenga éxito" — el loop de
+    # describe/measure reintenta y puede recuperarse, pero los intentos
+    # fallidos quedan acá. Sin mostrarlo, un fallo real (rate-limit, modelo
+    # caído) se ve igual que "no pasó nada" en la UI.
+    errors = result.get("errors", [])
 
-    return (image, annotations), description, structure
+    return (image, annotations), description, structure, "\n".join(errors)
 
 
 demo = gr.Interface(
@@ -45,6 +50,7 @@ demo = gr.Interface(
         gr.AnnotatedImage(label="Detección + segmentación (SAM2)"),
         gr.Textbox(label="Descripción (VLM)"),
         gr.JSON(label="Análisis estructurado (PlateAnalysis)"),
+        gr.Textbox(label="Errores (intentos fallidos del retry loop)"),
     ],
     title="Plate Vision Pipeline",
     description="detect → segment → describe → measure",
