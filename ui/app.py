@@ -27,6 +27,17 @@ def analyze(image: np.ndarray):
     state = create_initial_pipelinestate(image)
     result = graph.invoke(state)
 
+    # Sin detecciones, route_after_detect corta el grafo a END antes de
+    # segment/describe/measure (por diseño, no es un fallo) — sin este aviso,
+    # se ve igual que un error silencioso: todo vacío, sin nada en errors.
+    if not result.get("detections"):
+        return (
+            (image, []),
+            "No se detectó ningún objeto reconocible en la imagen — probá con otra foto o ángulo.",
+            {},
+            "",
+        )
+
     segmentations = result.get("segmentations", [])
     annotations = [
         (seg["mask"], f"{seg['cls']} ({seg['conf']:.2f})") for seg in segmentations
