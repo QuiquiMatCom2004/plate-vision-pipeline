@@ -4,7 +4,7 @@ torchvision==0.22.1
 torchaudio==2.7.1
 numpy==2.2.6
 opencv-python==4.12.0.88
-pillow==11.0.0
+pillow==10.4.0                 # <11.0 — gradio<5.0.0 exige pillow<11.0
 
 # ── Detection + Export ────────────────────────────────────────────────────────
 ultralytics==8.4.80
@@ -55,6 +55,5 @@ dvc==3.67.1
 # ── Data / Utils ──────────────────────────────────────────────────────────────
 datasets==4.0.0
 pandas==2.3.1
-Pillow==11.0.0
 tqdm==4.67.1
 python-dotenv==1.2.2
