@@ -4,7 +4,7 @@ torchvision==0.22.1
 torchaudio==2.7.1
 numpy==2.2.6
 opencv-python==4.12.0.88
-pillow==10.4.0                 # <11.0 — gradio<5.0.0 exige pillow<11.0
+pillow==11.0.0
 
 # ── Detection + Export ────────────────────────────────────────────────────────
 ultralytics==8.4.80
@@ -18,11 +18,15 @@ onnxruntime==1.24.4
 #   pip install git+https://github.com/facebookresearch/sam2.git
 
 # ── VLM (Qwen2-VL-7B / LLaVA-Next) ─────────────────────────────────────────
-transformers==4.53.2
-accelerate==1.13.0
-safetensors==0.5.3
-huggingface-hub>=0.30.0,<1.0
-tokenizers==0.21.2
+# >=5.0.0 — versión mínima que acepta huggingface-hub>=1.0 (lo exige
+# gradio>=5.27, el primero sin el bug de auto-docs con pydantic>=2.10.6).
+# Companions (safetensors/tokenizers/accelerate) sin pin exacto — que uv
+# resuelva la versión que transformers==5.17.0 realmente pide.
+transformers==5.17.0
+accelerate>=1.13.0
+safetensors>=0.8.0
+huggingface-hub>=1.3.0,<2.0
+tokenizers>=0.21.2
 sentencepiece==0.2.1
 bitsandbytes>=0.45.0          # 4-bit quantization — FALTANTE
 
@@ -44,9 +48,9 @@ uvicorn==0.44.0
 python-multipart==0.0.24
 
 # ── Demo UI ───────────────────────────────────────────────────────────────────
-# <5.0 — gradio>=5 arrastra huggingface-hub>=1.0, incompatible con el
-# huggingface-hub<1.0 que transformers==4.53.2 exige más abajo.
-gradio>=4.0.0,<5.0.0           # demo visual del pipeline (ui/app.py)
+# >=5.27.0 — primera versión sin el bug de auto-docs con pydantic>=2.10.6
+# (gradio<5.27 choca con pydantic==2.11.7, fijado abajo para fastapi/instructor).
+gradio>=5.27.0,<6.0.0          # demo visual del pipeline (ui/app.py)
 
 # ── MLOps ─────────────────────────────────────────────────────────────────────
 mlflow==3.11.1
