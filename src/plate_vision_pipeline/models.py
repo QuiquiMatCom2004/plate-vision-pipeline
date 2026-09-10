@@ -236,10 +236,13 @@ class MeasureModel:
         self.model_name = model_name
         self.max_tokens = max_tokens
 
-    def predict(self, description: str) -> Any:
-        return self.client.chat.completions.create(
+    def predict(self, description: str) -> dict:
+        # .model_dump() — PipelineState.structure está tipado como dict
+        # (no como PlateAnalysis); main.py valida con isinstance(structure, dict).
+        analysis = self.client.chat.completions.create(
             model=self.model_name,
             max_tokens=self.max_tokens,
             response_model=PlateAnalysis,
             messages=[{"role": "user", "content": description}],
         )
+        return analysis.model_dump()
