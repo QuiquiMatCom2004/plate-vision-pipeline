@@ -40,8 +40,18 @@ start() {
     rm -f "$LOG_FILE"
     setsid nohup "$VENV_PYTHON" ui/app.py > "$LOG_FILE" 2>&1 < /dev/null &
     disown
-    sleep 3
-    status
+
+    # Cargar YOLO+SAM2 tarda unos segundos — se sondea en vez de un sleep
+    # fijo, para no reportar "no está corriendo" en falso mientras carga.
+    for _ in $(seq 1 20); do
+        if is_up; then
+            status
+            return 0
+        fi
+        sleep 1
+    done
+    echo "No arrancó en 20s — revisar ${LOG_FILE}." >&2
+    return 1
 }
 
 stop() {
