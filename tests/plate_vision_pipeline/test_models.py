@@ -353,10 +353,12 @@ def test_segment_predict_empty_boxes_returns_empty_list_without_set_image(patch_
 # ---------------------------------------------------------------------------
 # MeasureModel
 #
-# Contrato confirmado: recibe el client OpenAI-compatible crudo (OpenRouter)
-# y lo envuelve con `instructor.from_openai(client, mode=Mode.JSON)` dentro
-# del __init__ — se usó Anthropic primero, pero las API keys disponibles
-# (NVIDIA/OpenRouter) hablan el formato OpenAI, no el de Anthropic.
+# Contrato confirmado: recibe el client OpenAI-compatible crudo
+# (OpenRouter/NVIDIA) y lo envuelve con
+# `instructor.from_openai(client, mode=Mode.MD_JSON)` dentro del __init__ —
+# se usó Anthropic primero, pero las API keys disponibles (NVIDIA/OpenRouter)
+# hablan el formato OpenAI, no el de Anthropic. Mode.MD_JSON (no Mode.JSON)
+# porque varios modelos gratuitos envuelven el JSON en texto + ```json.
 #
 # predict(description) llama a `self.client.chat.completions.create(model=...,
 # max_tokens=..., response_model=PlateAnalysis, messages=[...])` — estilo

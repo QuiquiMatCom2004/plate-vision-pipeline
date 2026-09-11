@@ -220,10 +220,13 @@ class DescribeModel:
 class MeasureModel:
     """Modelo de medición con structured output via `instructor`.
 
-    Recibe el client OpenAI-compatible crudo (OpenRouter) y lo envuelve con
-    `instructor.from_openai` dentro del __init__. Se usa `Mode.JSON` en vez
-    de `Mode.TOOLS` porque no todos los modelos gratuitos del catálogo de
-    OpenRouter soportan tool-calling nativo de forma confiable. El client ya
+    Recibe el client OpenAI-compatible crudo (OpenRouter/NVIDIA/...) y lo
+    envuelve con `instructor.from_openai` dentro del __init__. Se usa
+    `Mode.MD_JSON` (pide el JSON en un bloque ```json y lo extrae de ahí) en
+    vez de `Mode.JSON` (JSON crudo estricto) o `Mode.TOOLS` — varios modelos
+    gratuitos (confirmado con meta/llama-3.2-11b-vision-instruct vía NVIDIA)
+    envuelven la respuesta en texto explicativo + bloque markdown aunque se
+    les diga "solo JSON", y `Mode.JSON` los rechaza de entrada. El client ya
     construido se inyecta (DI) — así el modelo es testeable sin tocar red.
     """
 
@@ -231,6 +234,9 @@ class MeasureModel:
     # gratuitos cambia seguido — re-verificar si empieza a dar 404/429
     # persistente contra GET https://openrouter.ai/api/v1/models).
     # minimax/minimax-m3:free (usado antes) pasó a ser solo de pago.
+    # OpenRouter también tiene un tope diario de 50 requests/día por cuenta
+    # en el free tier (no solo por modelo) — si todo empieza a dar 429,
+    # revisar ahí antes de sospechar del modelo puntual.
     DEFAULT_MODEL_NAME = "nex-agi/nex-n2.5-mini:free"
     DEFAULT_MAX_TOKENS = 1024
 
@@ -240,7 +246,7 @@ class MeasureModel:
         model_name: str = DEFAULT_MODEL_NAME,
         max_tokens: int = DEFAULT_MAX_TOKENS,
     ) -> None:
-        self.client = from_openai(raw_client, mode=Mode.JSON)
+        self.client = from_openai(raw_client, mode=Mode.MD_JSON)
         self.model_name = model_name
         self.max_tokens = max_tokens
 
