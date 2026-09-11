@@ -253,10 +253,30 @@ class MeasureModel:
     def predict(self, description: str) -> dict:
         # .model_dump() — PipelineState.structure está tipado como dict
         # (no como PlateAnalysis); main.py valida con isinstance(structure, dict).
+        #
+        # System message explícito: la autocorrección de `instructor` ante
+        # un error de validación (enum/literal inválido) falla contra este
+        # modelo/endpoint ("This model only supports single tool-calls at
+        # once!") — sin una segunda oportunidad, hay que reducir la chance
+        # de que el primer intento ya venga con un valor fuera del schema
+        # (el modelo tiende a inventar dietary_flags o responder en español
+        # los literales que el schema exige en inglés).
+        system_message = (
+            "Responde exclusivamente con los valores EXACTOS permitidos por el "
+            "schema para los campos de enum/literal — no inventes variantes ni "
+            "los traduzcas. meal_type_guess debe ser uno de: breakfast, lunch, "
+            "dinner, snack (en inglés, tal cual). dietary_flags debe ser una "
+            "lista con elementos EXACTAMENTE de: high protein, low protein, "
+            "high calorie, low calorie, high sodium, low sodium, high sugar, "
+            "low sugar, high fat, low fat, high fiber."
+        )
         analysis = self.client.chat.completions.create(
             model=self.model_name,
             max_tokens=self.max_tokens,
             response_model=PlateAnalysis,
-            messages=[{"role": "user", "content": description}],
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": description},
+            ],
         )
         return analysis.model_dump()
