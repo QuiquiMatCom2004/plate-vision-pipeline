@@ -175,11 +175,12 @@ class DescribeModel:
     evita que el container crashee en boot si la GPU no está disponible.
     """
 
-    def __init__(self, vlm_mode, vlm_name, device, apikey=None) -> None:
+    def __init__(self, vlm_mode, vlm_name, device, apikey=None, base_url=OPENROUTER_BASE_URL) -> None:
         self.vlm_mode = vlm_mode
         self.vlm_name = vlm_name
         self.device = device
         self.apikey = apikey
+        self.base_url = base_url
         self.model: Any = None
         for name in vlm_name[vlm_mode]:
             try:
@@ -212,7 +213,7 @@ class DescribeModel:
         return LocalVLMBackend(model=model, processor=processor)
 
     def _load_api_candidate(self, name: str) -> ApiVLMBackend:
-        client = openai.OpenAI(base_url=OPENROUTER_BASE_URL, api_key=self.apikey)
+        client = openai.OpenAI(base_url=self.base_url, api_key=self.apikey)
         return ApiVLMBackend(client=client, model_name=name)
 
 

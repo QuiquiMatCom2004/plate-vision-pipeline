@@ -14,3 +14,8 @@ class Settings(BaseSettings):
     vlm_name: dict[Literal['local','api'],list[str]]
     measure_model_name: str = 'nex-agi/nex-n2.5-mini:free'
     measure_max_tokens: int = 1024
+    # base_url del proveedor OpenAI-compatible — cambiar de OpenRouter a
+    # NVIDIA (https://integrate.api.nvidia.com/v1) es solo config, sin
+    # tocar código, siempre que apikey/vlm_name/measure_model_name
+    # coincidan con el catálogo del proveedor elegido.
+    llm_base_url: str = 'https://openrouter.ai/api/v1'
